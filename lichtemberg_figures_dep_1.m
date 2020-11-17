@@ -1,11 +1,11 @@
 clc;clear;clf;
-grid = 100;      % please use even number such that mod(grid,2)=0
+grid = 200;      % please use even number such that mod(grid,2)=0
 x=0:grid;   %   columns
 y=x;                    %   rows
 [x,y] = meshgrid(x,y);
 
-u_cathode = 1;
-u_anode = 0;
+u_cathode = 0;
+u_anode = 1;
 potential = ((u_anode + u_cathode)/2).*ones(grid+1);
 
 w = 1.66667;    %   relaxation factor
@@ -26,9 +26,11 @@ potential(actual_point_row,actual_point_col) = u_cathode;
 cord_row = actual_point_row;
 cord_col = actual_point_col;
 contour(y,x,potential);
+hold on;
 set(gcf,'color',[0.5 0.5 0.5]);
 xlim([0 grid]);
 ylim([0 grid]);
+axis square
 axis off;
 
 iteration = 1;
@@ -50,21 +52,21 @@ while(potential(cord_row,cord_col)~=u_anode)
                             potential(r-1,c) + ...  %current value top
                             potential(r,c+1) + ...  %current value right
                             potential(r+1,c) + ...  %previous value bottom
-                            potential(r,grid+1) );     %previous value left
+                            potential(r,grid+1));     %previous value left
                     case grid+1
                         potential(r,c) = potential(r,c) + (w/4)*(...
                             (-4)*potential(r,c) + ...
                             potential(r-1,c) + ...  %current value top
                             potential(r,1) + ...  %current value right
                             potential(r+1,c) + ...  %previous value bottom
-                            potential(r,c-1) );     %previous value left
+                            potential(r,c-1));     %previous value left
                     otherwise
                         potential(r,c) = potential(r,c) + (w/4)*(...
                             (-4)*potential(r,c) + ...
                             potential(r-1,c) + ...  %current value top
                             potential(r,c+1) + ...  %current value right
                             potential(r+1,c) + ...  %previous value bottom
-                            potential(r,c-1) );     %previous value left
+                            potential(r,c-1));     %previous value left
                 end
             end
         end
@@ -72,7 +74,7 @@ while(potential(cord_row,cord_col)~=u_anode)
     
     %%%%%%%%%%%%%%%     probability function calculating
     for r = 2 : grid
-        for c = 2 : grid
+        for c = 1 : grid+1
             if (potential(r,c) == u_cathode)
                 for a = -1:1
                     for b = -1:1
@@ -85,16 +87,28 @@ while(potential(cord_row,cord_col)~=u_anode)
                                 cord_col = 1;
                         end
                         switch a
+                            case (-b)
+%                                 if (potential(cord_row,cord_col) ~= u_cathode)
+%                                     possible_points(cord_row,cord_col) = 1;
+%                                     probability(cord_row,cord_col) = (1/sqrt(2))*(abs(potential(r,c) - potential(cord_row,cord_col))^e) +rand^e;
+%                                     q = q+1;
+%                                     %possible_points(cord_row,cord_col) = 0;
+%                                     %probability(cord_row,cord_col) = 0;
+%                                 end
                             case b
-                                 if (potential(cord_row,cord_col) ~= u_cathode)
-                                    possible_points(cord_row,cord_col) = 1;
-                                    probability(cord_row,cord_col) = (1/sqrt(2))*abs(potential(r,c) - potential(cord_row,cord_col))^e + rand^e;
-                                    q = q+1;
-                                end
+%                                  if (potential(cord_row,cord_col) ~= u_cathode)
+%                                     possible_points(cord_row,cord_col) = 1;
+%                                     probability(cord_row,cord_col) = (1/sqrt(2))*(abs(potential(r,c) - potential(cord_row,cord_col))^e) +rand^e;
+%                                     q = q+1;
+%                                     %possible_points(cord_row,cord_col) = 0;
+%                                     %probability(cord_row,cord_col) = 0;
+%                                 end
                             otherwise
                                 if (potential(cord_row,cord_col) ~= u_cathode)
                                     possible_points(cord_row,cord_col) = 1;
-                                    probability(cord_row,cord_col) = abs(potential(r,c) - potential(cord_row,cord_col))^e + rand^e;
+                                    probability(cord_row,cord_col) = (abs(potential(r,c) - potential(cord_row,cord_col))^e) +rand^e;
+                                    %possible_points(cord_row,cord_col) = 0;
+                                    %probability(cord_row,cord_col) = 0;
                                     q = q+1;
                                 end
                         end
@@ -129,15 +143,40 @@ while(potential(cord_row,cord_col)~=u_anode)
         for c = -1:1
             cord_row = next_point_row + r;
             cord_col = next_point_col + c;
-            switch cord_col
-                case 0
-                    cord_col = grid+1;
-                case (grid+2)
-                    cord_col = 1;
-            end
-            if (potential(cord_row, cord_col)==u_cathode)
-                actual_point_row = cord_row;
-                actual_point_col = cord_col;
+            switch r
+                case (-c)
+%                     switch cord_col
+%                         case 0
+%                             cord_col = grid+1;
+%                         case (grid+2)
+%                             cord_col = 1;
+%                     end
+%                     if (potential(cord_row, cord_col)==u_cathode)
+%                         actual_point_row = cord_row;
+%                         actual_point_col = cord_col;
+%                     end
+                case c
+%                     switch cord_col
+%                         case 0
+%                             cord_col = grid+1;
+%                         case (grid+2)
+%                             cord_col = 1;
+%                     end
+%                     if (potential(cord_row, cord_col)==u_cathode)
+%                         actual_point_row = cord_row;
+%                         actual_point_col = cord_col;
+%                     end
+                otherwise
+                    switch cord_col
+                        case 0
+                            cord_col = grid+1;
+                        case (grid+2)
+                            cord_col = 1;
+                    end
+                    if (potential(cord_row, cord_col)==u_cathode)
+                        actual_point_row = cord_row;
+                        actual_point_col = cord_col;
+                    end
             end
         end
     end
@@ -147,11 +186,20 @@ while(potential(cord_row,cord_col)~=u_anode)
     if(iteration==3000)
         break;
     end
-    line([actual_point_row,next_point_row],[actual_point_col,next_point_col],'LineWidth',2,'Color','black');
-    
-    %plot([actual_point_row,next_point_row],[actual_point_col,next_point_col],'or')
-    hold on;
-    pause(0.000000001)
+    switch(next_point_col)
+        case 1
+        case (grid+1)
+        otherwise
+            switch actual_point_col
+                case 1
+                case (grid+1)
+                otherwise
+                    line([actual_point_row,next_point_row],[actual_point_col,next_point_col],'LineWidth',2,'Color','black');
+                    %plot([actual_point_row,next_point_row],[actual_point_col,next_point_col],'or');
+                    hold on;
+            end
+    end
+    %pause(0.000000001)
 end
 contour(y,x,potential,5);
 fprintf('Número de iteraciones: %d\n',iteration);
